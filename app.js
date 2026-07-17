@@ -35,6 +35,10 @@
     return `$${Number(n).toFixed(2)}`;
   }
 
+  function isVisibleInMonth(p, key) {
+    return !p.startMonth || p.startMonth <= key;
+  }
+
   // ---- Elements ----
   const monthLabel = document.getElementById("monthLabel");
   const paymentForm = document.getElementById("paymentForm");
@@ -75,7 +79,7 @@
     const amount = parseFloat(amountInput.value);
     if (!label || !day || isNaN(amount)) return;
 
-    payments.push({ id: crypto.randomUUID(), label, day, amount });
+    payments.push({ id: crypto.randomUUID(), label, day, amount, startMonth: monthKey(currentDate) });
     save();
     closeModal();
     render();
@@ -94,7 +98,7 @@
     const key = monthKey(currentDate);
     monthLabel.textContent = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
-    const sorted = [...payments].sort((a, b) => a.day - b.day);
+    const sorted = payments.filter(p => isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
 
     paymentsList.innerHTML = "";
 
@@ -160,7 +164,7 @@
 
     const paymentsByDay = {};
     payments.forEach(p => {
-      if (p.day <= daysInMonth) {
+      if (p.day <= daysInMonth && isVisibleInMonth(p, key)) {
         (paymentsByDay[p.day] = paymentsByDay[p.day] || []).push(p);
       }
     });
@@ -200,7 +204,7 @@
     }
 
     // Summary table beneath calendar
-    const sorted = [...payments].filter(p => p.day <= daysInMonth).sort((a, b) => a.day - b.day);
+    const sorted = payments.filter(p => p.day <= daysInMonth && isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
     const table = document.getElementById("printTable");
     let rows = `<tr><th>Día</th><th>Descripción</th><th>Monto</th><th>Estado</th></tr>`;
     sorted.forEach(p => {

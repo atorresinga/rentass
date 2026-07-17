@@ -21,42 +21,6 @@ body {
   color: var(--text);
 }
 
-/* Lock screen */
-#appRoot { display: none; }
-
-.lock-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.lock-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px 24px;
-  max-width: 300px;
-  width: 100%;
-  text-align: center;
-}
-.lock-icon { font-size: 36px; margin-bottom: 8px; }
-.lock-card h1 { font-size: 19px; margin: 0 0 4px; }
-.lock-sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
-#lockForm { display: flex; flex-direction: column; gap: 10px; }
-#pinInput {
-  text-align: center;
-  font-size: 24px;
-  letter-spacing: 10px;
-  padding: 12px;
-}
-.lock-error {
-  color: var(--danger);
-  font-size: 13px;
-  min-height: 16px;
-  margin: 14px 0 0;
-}
-
 .app {
   max-width: 640px;
   margin: 0 auto;
