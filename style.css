@@ -330,12 +330,12 @@ button.icon-btn:hover { background: #fee2e2; }
   .calendar-grid .weekday {
     font-weight: bold;
     text-align: center;
-    font-size: 12px;
+    font-size: 15px;
     padding: 4px 0;
   }
   .calendar-grid .day-cell {
     border: 1px solid #ccc;
-    min-height: 54px;
+    min-height: 62px;
     padding: 4px;
     font-size: 11px;
     border-radius: 4px;
@@ -343,15 +343,16 @@ button.icon-btn:hover { background: #fee2e2; }
   .calendar-grid .day-cell.empty-cell { border: none; }
   .calendar-grid .day-number {
     font-weight: bold;
-    font-size: 12px;
+    font-size: 15px;
     margin-bottom: 2px;
   }
   .calendar-grid .payment-mark {
     display: block;
     border-radius: 3px;
-    padding: 1px 3px;
+    padding: 2px 4px;
     margin-top: 2px;
-    font-size: 10px;
+    font-size: 14px;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -362,13 +363,13 @@ button.icon-btn:hover { background: #fee2e2; }
   .legend {
     display: flex;
     gap: 16px;
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 16px;
   }
   .legend .dot {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     margin-right: 4px;
     vertical-align: middle;
@@ -385,9 +386,9 @@ button.icon-btn:hover { background: #fee2e2; }
     justify-content: space-between;
     gap: 10px;
     break-inside: avoid;
-    padding: 3px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #ddd;
-    font-size: 12px;
+    font-size: 17px;
   }
   .print-row span:last-child {
     font-weight: bold;

@@ -53,6 +53,11 @@
     return `$${Number(n).toFixed(2)}`;
   }
 
+  // For the printed calendar: drop a leading "Cuarto X - " style prefix, keep just the name.
+  function displayName(label) {
+    return label.includes(" - ") ? label.split(" - ").slice(1).join(" - ").trim() : label;
+  }
+
   function isVisibleInMonth(p, key) {
     return !p.startMonth || p.startMonth <= key;
   }
@@ -289,7 +294,7 @@
         const mark = document.createElement("span");
         const received = getStatus(p, key) === "received";
         mark.className = `payment-mark ${received ? "received" : "pending"}`;
-        mark.textContent = p.label;
+        mark.textContent = displayName(p.label);
         cell.appendChild(mark);
       });
 
@@ -300,7 +305,7 @@
     const sorted = payments.filter(p => p.day <= daysInMonth && isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
     const summary = document.getElementById("printSummary");
     summary.innerHTML = sorted.map(p =>
-      `<div class="print-row"><span>${p.label}</span><span>${formatAmount(p.amount)}</span></div>`
+      `<div class="print-row"><span>${displayName(p.label)}</span><span>${formatAmount(p.amount)}</span></div>`
     ).join("");
   }
 
