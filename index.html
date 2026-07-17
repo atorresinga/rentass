@@ -11,55 +11,71 @@
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <h1>🏠 Pagos de Renta</h1>
-  </header>
-
-  <section class="month-nav">
-    <button id="prevMonth" aria-label="Mes anterior">‹</button>
-    <h2 id="monthLabel"></h2>
-    <button id="nextMonth" aria-label="Mes siguiente">›</button>
-  </section>
-
-  <section class="card">
-    <div class="section-header">
-      <h2>Pagos de este mes</h2>
-      <span id="pendingBadge" class="badge"></span>
-    </div>
-    <ul id="paymentsList" class="payments-list"></ul>
-  </section>
-</div>
-
-<div class="bottom-bar">
-  <button id="exportPdf" class="bottom-btn">Calendario</button>
-</div>
-
-<div id="addModal" class="modal-overlay">
-  <div class="modal-sheet">
-    <div class="modal-header">
-      <h2>Agregar Pago</h2>
-      <button id="closeModal" class="icon-btn" aria-label="Cerrar">✕</button>
-    </div>
-    <form id="paymentForm">
-      <input type="text" id="label" placeholder="Descripción (ej. Cuarto 1 - Juan)" required />
-      <input type="number" id="day" placeholder="Día del mes (1-31)" min="1" max="31" required />
-      <input type="number" id="amount" placeholder="Monto ($)" min="0" step="0.01" required />
-      <button type="submit">Agregar Pago</button>
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <h1>Pagos de Renta</h1>
+    <p class="lock-sub">Ingresa el código para continuar</p>
+    <form id="lockForm">
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="pinInput" placeholder="••••••" autocomplete="off" />
+      <button type="submit">Entrar</button>
     </form>
+    <p id="lockError" class="lock-error"></p>
   </div>
 </div>
 
-<div id="printArea">
-  <h1 id="printTitle"></h1>
-  <div id="printCalendar" class="calendar-grid"></div>
-  <div class="legend">
-    <span><i class="dot received"></i> Recibido</span>
-    <span><i class="dot pending"></i> Pendiente</span>
+<div id="appRoot">
+  <div class="app">
+    <header>
+      <h1>🏠 Pagos de Renta</h1>
+    </header>
+
+    <section class="month-nav">
+      <button id="prevMonth" aria-label="Mes anterior">‹</button>
+      <h2 id="monthLabel"></h2>
+      <button id="nextMonth" aria-label="Mes siguiente">›</button>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2>Pagos de este mes</h2>
+        <span id="pendingBadge" class="badge"></span>
+      </div>
+      <ul id="paymentsList" class="payments-list"></ul>
+    </section>
   </div>
-  <table id="printTable" class="print-table"></table>
+
+  <div class="bottom-bar">
+    <button id="exportPdf" class="bottom-btn">Calendario</button>
+  </div>
+
+  <div id="addModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2>Agregar Pago</h2>
+        <button id="closeModal" class="icon-btn" aria-label="Cerrar">✕</button>
+      </div>
+      <form id="paymentForm">
+        <input type="text" id="label" placeholder="Descripción (ej. Cuarto 1 - Juan)" required />
+        <input type="number" id="day" placeholder="Día del mes (1-31)" min="1" max="31" required />
+        <input type="number" id="amount" placeholder="Monto ($)" min="0" step="0.01" required />
+        <button type="submit">Agregar Pago</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="printArea">
+    <h1 id="printTitle"></h1>
+    <div id="printCalendar" class="calendar-grid"></div>
+    <div class="legend">
+      <span><i class="dot received"></i> Recibido</span>
+      <span><i class="dot pending"></i> Pendiente</span>
+    </div>
+    <table id="printTable" class="print-table"></table>
+  </div>
 </div>
 
+<script src="lock.js"></script>
 <script src="app.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
