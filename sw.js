@@ -1,4 +1,4 @@
-const CACHE_NAME = "renta-cache-v8";
+const CACHE_NAME = "renta-cache-v9";
 const ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
