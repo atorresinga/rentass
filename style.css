@@ -316,6 +316,7 @@ button.icon-btn:hover { background: #fee2e2; }
     left: 0;
     width: 100%;
     padding: 24px;
+    text-transform: uppercase;
   }
   #printTitle {
     text-align: center;
@@ -330,12 +331,12 @@ button.icon-btn:hover { background: #fee2e2; }
   .calendar-grid .weekday {
     font-weight: bold;
     text-align: center;
-    font-size: 15px;
+    font-size: 17px;
     padding: 4px 0;
   }
   .calendar-grid .day-cell {
     border: 1px solid #ccc;
-    min-height: 62px;
+    min-height: 68px;
     padding: 4px;
     font-size: 11px;
     border-radius: 4px;
@@ -343,7 +344,7 @@ button.icon-btn:hover { background: #fee2e2; }
   .calendar-grid .day-cell.empty-cell { border: none; }
   .calendar-grid .day-number {
     font-weight: bold;
-    font-size: 15px;
+    font-size: 17px;
     margin-bottom: 2px;
   }
   .calendar-grid .payment-mark {
@@ -351,7 +352,7 @@ button.icon-btn:hover { background: #fee2e2; }
     border-radius: 3px;
     padding: 2px 4px;
     margin-top: 2px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -363,7 +364,7 @@ button.icon-btn:hover { background: #fee2e2; }
   .legend {
     display: flex;
     gap: 16px;
-    font-size: 14px;
+    font-size: 15px;
     margin-bottom: 16px;
   }
   .legend .dot {
@@ -386,9 +387,9 @@ button.icon-btn:hover { background: #fee2e2; }
     justify-content: space-between;
     gap: 10px;
     break-inside: avoid;
-    padding: 6px 0;
+    padding: 7px 0;
     border-bottom: 1px solid #ddd;
-    font-size: 17px;
+    font-size: 19px;
   }
   .print-row span:last-child {
     font-weight: bold;
