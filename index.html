@@ -27,7 +27,21 @@
       <h2>Pagos de este mes</h2>
       <span id="pendingBadge" class="badge"></span>
     </div>
-    <ul id="paymentsList" class="payments-list"></ul>
+
+    <div class="payment-group">
+      <h3 class="group-title">Pago completado</h3>
+      <ul id="completedList" class="payments-list"></ul>
+    </div>
+    <div class="payment-group">
+      <h3 class="group-title">Pago pendiente</h3>
+      <ul id="pendingList" class="payments-list"></ul>
+    </div>
+    <div class="payment-group">
+      <h3 class="group-title">Pago futuro</h3>
+      <ul id="futureList" class="payments-list"></ul>
+    </div>
+
+    <ul id="addRowList" class="payments-list"></ul>
   </section>
 </div>
 
@@ -69,7 +83,6 @@
   <div id="printCalendar" class="calendar-grid"></div>
   <div class="legend">
     <span><i class="dot received"></i> Recibido</span>
-    <span><i class="dot partial"></i> Parcial</span>
     <span><i class="dot pending"></i> Pendiente</span>
   </div>
   <table id="printTable" class="print-table"></table>

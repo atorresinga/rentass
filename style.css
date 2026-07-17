@@ -124,10 +124,25 @@ button.icon-btn:hover { background: #fee2e2; }
 }
 
 /* Payments list */
+.payment-group + .payment-group {
+  margin-top: 18px;
+}
+.group-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
 .payments-list {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+#addRowList {
+  margin-top: 18px;
 }
 .payments-list li {
   display: flex;

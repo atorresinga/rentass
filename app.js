@@ -57,6 +57,15 @@
     return !p.startMonth || p.startMonth <= key;
   }
 
+  // Whether a payment's due date (day, in the currently viewed month) hasn't happened yet.
+  function isFutureDue(payment) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(currentDate.getFullYear(), currentDate.getMonth(), payment.day);
+    due.setHours(0, 0, 0, 0);
+    return due > today;
+  }
+
   const STATUS_LABELS = { received: "Recibido", partial: "Parcial", pending: "Pendiente" };
 
   // ---- Elements ----
@@ -65,7 +74,10 @@
   const labelInput = document.getElementById("label");
   const dayInput = document.getElementById("day");
   const amountInput = document.getElementById("amount");
-  const paymentsList = document.getElementById("paymentsList");
+  const completedList = document.getElementById("completedList");
+  const pendingList = document.getElementById("pendingList");
+  const futureList = document.getElementById("futureList");
+  const addRowList = document.getElementById("addRowList");
   const pendingBadge = document.getElementById("pendingBadge");
   const addModal = document.getElementById("addModal");
   const payModal = document.getElementById("payModal");
@@ -149,25 +161,14 @@
     render();
   }
 
-  function render() {
-    const key = monthKey(currentDate);
-    monthLabel.textContent = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  function renderGroup(listEl, items, key, statusLabelOverride) {
+    listEl.innerHTML = "";
+    listEl.closest(".payment-group").style.display = items.length ? "" : "none";
 
-    const sorted = payments.filter(p => isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
-
-    paymentsList.innerHTML = "";
-
-    let pendingCount = 0;
-    let pendingTotal = 0;
-
-    sorted.forEach(p => {
+    items.forEach(p => {
       const status = getStatus(p, key);
       const paid = getPaidAmount(p, key);
       const remaining = getRemaining(p, key);
-      if (status !== "received") {
-        pendingCount++;
-        pendingTotal += remaining;
-      }
 
       let amountLine;
       if (status === "received") amountLine = `Pagado ${formatAmount(paid)}`;
@@ -182,31 +183,60 @@
             <span class="payment-label">${p.label}</span>
             <span class="payment-amount">${amountLine}</span>
           </span>
-          <span class="payment-status">${STATUS_LABELS[status]}</span>
+          <span class="payment-status">${statusLabelOverride || STATUS_LABELS[status]}</span>
         </button>
         <button class="icon-btn" data-del="${p.id}" aria-label="Eliminar pago">✕</button>
       `;
-      paymentsList.appendChild(li);
+      listEl.appendChild(li);
     });
 
-    const addLi = document.createElement("li");
-    addLi.innerHTML = `<button class="add-payment-btn" aria-label="Agregar pago">+</button>`;
-    paymentsList.appendChild(addLi);
-
-    pendingBadge.textContent = pendingCount ? `${pendingCount} pendiente${pendingCount > 1 ? "s" : ""} · ${formatAmount(pendingTotal)}` : "";
-
-    paymentsList.querySelectorAll(".payment-btn").forEach(btn => {
+    listEl.querySelectorAll(".payment-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const payment = payments.find(p => p.id === btn.dataset.id);
         if (payment) openPayModal(payment, key);
       });
     });
-    paymentsList.querySelectorAll("[data-del]").forEach(btn => {
+    listEl.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", () => {
         if (confirm("¿Eliminar este pago?")) deletePayment(btn.dataset.del);
       });
     });
-    paymentsList.querySelector(".add-payment-btn").addEventListener("click", openModal);
+  }
+
+  function render() {
+    const key = monthKey(currentDate);
+    monthLabel.textContent = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+    const sorted = payments.filter(p => isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
+
+    const completed = [];
+    const pending = [];
+    const future = [];
+
+    let pendingCount = 0;
+    let pendingTotal = 0;
+
+    sorted.forEach(p => {
+      const status = getStatus(p, key);
+      if (status === "received") {
+        completed.push(p);
+      } else if (isFutureDue(p)) {
+        future.push(p);
+      } else {
+        pending.push(p);
+        pendingCount++;
+        pendingTotal += getRemaining(p, key);
+      }
+    });
+
+    renderGroup(completedList, completed, key);
+    renderGroup(pendingList, pending, key);
+    renderGroup(futureList, future, key, "Futuro");
+
+    pendingBadge.textContent = pendingCount ? `${pendingCount} pendiente${pendingCount > 1 ? "s" : ""} · ${formatAmount(pendingTotal)}` : "";
+
+    addRowList.innerHTML = `<li><button class="add-payment-btn" aria-label="Agregar pago">+</button></li>`;
+    addRowList.querySelector(".add-payment-btn").addEventListener("click", openModal);
   }
 
   // ---- PDF export (calendar for the currently viewed month) ----
@@ -257,12 +287,9 @@
 
       (paymentsByDay[day] || []).forEach(p => {
         const mark = document.createElement("span");
-        const status = getStatus(p, key);
-        const remaining = getRemaining(p, key);
-        mark.className = `payment-mark ${status}`;
-        mark.textContent = status === "received"
-          ? `${p.label} · ${formatAmount(p.amount)}`
-          : `${p.label} · Faltan ${formatAmount(remaining)}`;
+        const received = getStatus(p, key) === "received";
+        mark.className = `payment-mark ${received ? "received" : "pending"}`;
+        mark.textContent = `${p.label} · ${formatAmount(p.amount)}`;
         cell.appendChild(mark);
       });
 
@@ -274,12 +301,8 @@
     const table = document.getElementById("printTable");
     let rows = `<tr><th>Día</th><th>Descripción</th><th>Monto</th><th>Estado</th></tr>`;
     sorted.forEach(p => {
-      const status = getStatus(p, key);
-      const paid = getPaidAmount(p, key);
-      const statusText = status === "partial"
-        ? `Parcial (pagó ${formatAmount(paid)} de ${formatAmount(p.amount)})`
-        : STATUS_LABELS[status];
-      rows += `<tr><td>${p.day}</td><td>${p.label}</td><td>${formatAmount(p.amount)}</td><td>${statusText}</td></tr>`;
+      const received = getStatus(p, key) === "received";
+      rows += `<tr><td>${p.day}</td><td>${p.label}</td><td>${formatAmount(p.amount)}</td><td>${received ? "Recibido" : "Pendiente"}</td></tr>`;
     });
     table.innerHTML = rows;
   }
