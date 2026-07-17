@@ -335,7 +335,7 @@ button.icon-btn:hover { background: #fee2e2; }
   }
   .calendar-grid .day-cell {
     border: 1px solid #ccc;
-    min-height: 70px;
+    min-height: 54px;
     padding: 4px;
     font-size: 11px;
     border-radius: 4px;
@@ -357,7 +357,6 @@ button.icon-btn:hover { background: #fee2e2; }
     white-space: nowrap;
   }
   .payment-mark.received { background: #dcfce7; color: #166534; }
-  .payment-mark.partial { background: #ede9fe; color: #5b21b6; }
   .payment-mark.pending { background: #fef3c7; color: #92400e; }
 
   .legend {
@@ -375,18 +374,24 @@ button.icon-btn:hover { background: #fee2e2; }
     vertical-align: middle;
   }
   .legend .dot.received { background: #16a34a; }
-  .legend .dot.partial { background: #7c3aed; }
   .legend .dot.pending { background: #d97706; }
 
-  .print-table {
-    width: 100%;
-    border-collapse: collapse;
+  .print-summary {
+    column-count: 2;
+    column-gap: 28px;
+  }
+  .print-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    break-inside: avoid;
+    padding: 3px 0;
+    border-bottom: 1px solid #ddd;
     font-size: 12px;
   }
-  .print-table th, .print-table td {
-    border: 1px solid #ccc;
-    padding: 4px 6px;
-    text-align: left;
+  .print-row span:last-child {
+    font-weight: bold;
+    flex-shrink: 0;
   }
 }
 

@@ -289,22 +289,19 @@
         const mark = document.createElement("span");
         const received = getStatus(p, key) === "received";
         mark.className = `payment-mark ${received ? "received" : "pending"}`;
-        mark.textContent = `${p.label} · ${formatAmount(p.amount)}`;
+        mark.textContent = p.label;
         cell.appendChild(mark);
       });
 
       grid.appendChild(cell);
     }
 
-    // Summary table beneath calendar
+    // Summary list beneath calendar: name - total to pay, in two columns to fit one page
     const sorted = payments.filter(p => p.day <= daysInMonth && isVisibleInMonth(p, key)).sort((a, b) => a.day - b.day);
-    const table = document.getElementById("printTable");
-    let rows = `<tr><th>Día</th><th>Descripción</th><th>Monto</th><th>Estado</th></tr>`;
-    sorted.forEach(p => {
-      const received = getStatus(p, key) === "received";
-      rows += `<tr><td>${p.day}</td><td>${p.label}</td><td>${formatAmount(p.amount)}</td><td>${received ? "Recibido" : "Pendiente"}</td></tr>`;
-    });
-    table.innerHTML = rows;
+    const summary = document.getElementById("printSummary");
+    summary.innerHTML = sorted.map(p =>
+      `<div class="print-row"><span>${p.label}</span><span>${formatAmount(p.amount)}</span></div>`
+    ).join("");
   }
 
   render();
