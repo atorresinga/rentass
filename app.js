@@ -10,6 +10,7 @@
   let receipts = JSON.parse(localStorage.getItem(STORAGE_RECEIPTS) || "{}");
   let currentDate = new Date();
   currentDate.setDate(1);
+  let currentPayId = null;
 
   function save() {
     localStorage.setItem(STORAGE_PAYMENTS, JSON.stringify(payments));
@@ -20,14 +21,31 @@
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
   }
 
-  function isReceived(paymentId, key) {
-    return !!receipts[`${paymentId}_${key}`];
+  // A receipt value is either a number (amount paid so far) or the legacy
+  // boolean `true` from before partial payments existed (treated as paid in full).
+  function getPaidAmount(payment, key) {
+    const val = receipts[`${payment.id}_${key}`];
+    if (typeof val === "number") return val;
+    if (val === true) return payment.amount;
+    return 0;
   }
 
-  function setReceived(paymentId, key, value) {
-    const rKey = `${paymentId}_${key}`;
-    if (value) receipts[rKey] = true;
-    else delete receipts[rKey];
+  function getRemaining(payment, key) {
+    return Math.max(0, payment.amount - getPaidAmount(payment, key));
+  }
+
+  function getStatus(payment, key) {
+    const paid = getPaidAmount(payment, key);
+    if (paid <= 0) return "pending";
+    if (paid >= payment.amount) return "received";
+    return "partial";
+  }
+
+  function setPaidAmount(payment, key, amount) {
+    const rKey = `${payment.id}_${key}`;
+    const clamped = Math.max(0, Math.min(amount, payment.amount));
+    if (clamped <= 0) delete receipts[rKey];
+    else receipts[rKey] = clamped;
     save();
   }
 
@@ -39,6 +57,8 @@
     return !p.startMonth || p.startMonth <= key;
   }
 
+  const STATUS_LABELS = { received: "Recibido", partial: "Parcial", pending: "Pendiente" };
+
   // ---- Elements ----
   const monthLabel = document.getElementById("monthLabel");
   const paymentForm = document.getElementById("paymentForm");
@@ -48,6 +68,10 @@
   const paymentsList = document.getElementById("paymentsList");
   const pendingBadge = document.getElementById("pendingBadge");
   const addModal = document.getElementById("addModal");
+  const payModal = document.getElementById("payModal");
+  const payForm = document.getElementById("payForm");
+  const paidAmountInput = document.getElementById("paidAmount");
+  const payModalInfo = document.getElementById("payModalInfo");
 
   document.getElementById("prevMonth").addEventListener("click", () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
@@ -85,6 +109,37 @@
     render();
   });
 
+  // ---- Register-payment modal ----
+  function openPayModal(payment, key) {
+    currentPayId = payment.id;
+    const paidSoFar = getPaidAmount(payment, key);
+    payModalInfo.textContent = `${payment.label} · Total ${formatAmount(payment.amount)}`;
+    paidAmountInput.value = paidSoFar > 0 ? paidSoFar : payment.amount;
+    payModal.classList.add("open");
+    paidAmountInput.focus();
+    paidAmountInput.select();
+  }
+  function closePayModal() {
+    payModal.classList.remove("open");
+    payForm.reset();
+    currentPayId = null;
+  }
+  document.getElementById("closePayModal").addEventListener("click", closePayModal);
+  payModal.addEventListener("click", (e) => {
+    if (e.target === payModal) closePayModal();
+  });
+
+  payForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = parseFloat(paidAmountInput.value);
+    if (isNaN(amount) || !currentPayId) return;
+    const payment = payments.find(p => p.id === currentPayId);
+    if (!payment) return;
+    setPaidAmount(payment, monthKey(currentDate), amount);
+    closePayModal();
+    render();
+  });
+
   function deletePayment(id) {
     payments = payments.filter(p => p.id !== id);
     Object.keys(receipts).forEach(k => {
@@ -106,20 +161,28 @@
     let pendingTotal = 0;
 
     sorted.forEach(p => {
-      const received = isReceived(p.id, key);
-      if (!received) {
+      const status = getStatus(p, key);
+      const paid = getPaidAmount(p, key);
+      const remaining = getRemaining(p, key);
+      if (status !== "received") {
         pendingCount++;
-        pendingTotal += p.amount;
+        pendingTotal += remaining;
       }
+
+      let amountLine;
+      if (status === "received") amountLine = `Pagado ${formatAmount(paid)}`;
+      else if (status === "partial") amountLine = `Pagado ${formatAmount(paid)} · Faltan ${formatAmount(remaining)}`;
+      else amountLine = `Faltan ${formatAmount(remaining)}`;
+
       const li = document.createElement("li");
       li.innerHTML = `
-        <button class="payment-btn ${received ? "received" : "pending"}" data-id="${p.id}">
+        <button class="payment-btn ${status}" data-id="${p.id}">
           <span class="payment-day">${p.day}</span>
           <span class="payment-info">
             <span class="payment-label">${p.label}</span>
-            <span class="payment-amount">${formatAmount(p.amount)}</span>
+            <span class="payment-amount">${amountLine}</span>
           </span>
-          <span class="payment-status">${received ? "Recibido" : "Pendiente"}</span>
+          <span class="payment-status">${STATUS_LABELS[status]}</span>
         </button>
         <button class="icon-btn" data-del="${p.id}" aria-label="Eliminar pago">✕</button>
       `;
@@ -134,8 +197,8 @@
 
     paymentsList.querySelectorAll(".payment-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        setReceived(btn.dataset.id, key, !isReceived(btn.dataset.id, key));
-        render();
+        const payment = payments.find(p => p.id === btn.dataset.id);
+        if (payment) openPayModal(payment, key);
       });
     });
     paymentsList.querySelectorAll("[data-del]").forEach(btn => {
@@ -194,9 +257,12 @@
 
       (paymentsByDay[day] || []).forEach(p => {
         const mark = document.createElement("span");
-        const received = isReceived(p.id, key);
-        mark.className = `payment-mark ${received ? "received" : "pending"}`;
-        mark.textContent = `${p.label} · ${formatAmount(p.amount)}`;
+        const status = getStatus(p, key);
+        const remaining = getRemaining(p, key);
+        mark.className = `payment-mark ${status}`;
+        mark.textContent = status === "received"
+          ? `${p.label} · ${formatAmount(p.amount)}`
+          : `${p.label} · Faltan ${formatAmount(remaining)}`;
         cell.appendChild(mark);
       });
 
@@ -208,8 +274,12 @@
     const table = document.getElementById("printTable");
     let rows = `<tr><th>Día</th><th>Descripción</th><th>Monto</th><th>Estado</th></tr>`;
     sorted.forEach(p => {
-      const received = isReceived(p.id, key);
-      rows += `<tr><td>${p.day}</td><td>${p.label}</td><td>${formatAmount(p.amount)}</td><td>${received ? "Recibido" : "Pendiente"}</td></tr>`;
+      const status = getStatus(p, key);
+      const paid = getPaidAmount(p, key);
+      const statusText = status === "partial"
+        ? `Parcial (pagó ${formatAmount(paid)} de ${formatAmount(p.amount)})`
+        : STATUS_LABELS[status];
+      rows += `<tr><td>${p.day}</td><td>${p.label}</td><td>${formatAmount(p.amount)}</td><td>${statusText}</td></tr>`;
     });
     table.innerHTML = rows;
   }

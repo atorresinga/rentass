@@ -9,6 +9,7 @@
   --danger: #dc2626;
   --ok: #16a34a;
   --pending: #d97706;
+  --partial: #7c3aed;
   --radius: 10px;
 }
 
@@ -148,6 +149,7 @@ button.icon-btn:hover { background: #fee2e2; }
 }
 .payment-btn { color: var(--text); }
 .payment-btn.received { background: #f0fdf4; border-color: #bbf7d0; }
+.payment-btn.partial { background: #f5f3ff; border-color: #ddd6fe; }
 .payment-btn.pending { background: #fffbeb; border-color: #fde68a; }
 
 .payment-day {
@@ -189,6 +191,7 @@ button.icon-btn:hover { background: #fee2e2; }
   border-radius: 999px;
 }
 .payment-btn.received .payment-status { background: #dcfce7; color: var(--ok); }
+.payment-btn.partial .payment-status { background: #ede9fe; color: var(--partial); }
 .payment-btn.pending .payment-status { background: #fef3c7; color: var(--pending); }
 
 /* Bottom action bar */
@@ -269,14 +272,20 @@ button.icon-btn:hover { background: #fee2e2; }
 }
 .modal-header h2 { margin: 0; font-size: 17px; }
 
-#paymentForm {
+#paymentForm, #payForm {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-#paymentForm button[type="submit"] {
+#paymentForm button[type="submit"], #payForm button[type="submit"] {
   margin-top: 4px;
   font-size: 16px;
+}
+
+.pay-modal-info {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 14px;
 }
 
 /* Print / PDF export */
@@ -333,6 +342,7 @@ button.icon-btn:hover { background: #fee2e2; }
     white-space: nowrap;
   }
   .payment-mark.received { background: #dcfce7; color: #166534; }
+  .payment-mark.partial { background: #ede9fe; color: #5b21b6; }
   .payment-mark.pending { background: #fef3c7; color: #92400e; }
 
   .legend {
@@ -350,6 +360,7 @@ button.icon-btn:hover { background: #fee2e2; }
     vertical-align: middle;
   }
   .legend .dot.received { background: #16a34a; }
+  .legend .dot.partial { background: #7c3aed; }
   .legend .dot.pending { background: #d97706; }
 
   .print-table {

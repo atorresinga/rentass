@@ -50,11 +50,26 @@
   </div>
 </div>
 
+<div id="payModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2>Registrar Pago</h2>
+      <button id="closePayModal" class="icon-btn" aria-label="Cerrar">✕</button>
+    </div>
+    <p id="payModalInfo" class="pay-modal-info"></p>
+    <form id="payForm">
+      <input type="number" id="paidAmount" placeholder="Monto pagado ($)" min="0" step="0.01" required />
+      <button type="submit">Confirmar</button>
+    </form>
+  </div>
+</div>
+
 <div id="printArea">
   <h1 id="printTitle"></h1>
   <div id="printCalendar" class="calendar-grid"></div>
   <div class="legend">
     <span><i class="dot received"></i> Recibido</span>
+    <span><i class="dot partial"></i> Parcial</span>
     <span><i class="dot pending"></i> Pendiente</span>
   </div>
   <table id="printTable" class="print-table"></table>
